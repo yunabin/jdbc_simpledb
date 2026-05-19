@@ -28,7 +28,9 @@ public class SimpleDb {
             if (conn == null || conn.isClosed()) {
                 conn = DriverManager.getConnection(
                         "jdbc:mysql://" + host + "/" + dbName +
-                                "?serverTimezone=Asia/Seoul",
+                                "?serverTimezone=Asia/Seoul"
+                                + "&allowPublicKeyRetrieval=true"
+                                + "&useSSL=false",
                         user, password
                 );
                 connectionHolder.set(conn);
