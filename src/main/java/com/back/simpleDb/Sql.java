@@ -55,4 +55,12 @@ public class Sql {
             throw new RuntimeException(e);
         }
     }
+
+    public int update() {
+        try (PreparedStatement ps = buildPs()) {
+            return ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
