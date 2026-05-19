@@ -3,6 +3,8 @@ package com.back.simpleDb;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Sql {
     private final Connection conn;
@@ -165,6 +167,32 @@ public class Sql {
             if (val instanceof Number n) return n.intValue() != 0;
 
             return false;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Sql appendIn(String sql, Object... args) {
+        String placeholders = IntStream.range(0, args.length)
+                .mapToObj(i -> "?")
+                .collect(Collectors.joining(", "));
+
+        String expandedSql = sql.replace("?", placeholders);
+
+        if (!query.isEmpty()) query.append(" ");
+        query.append(expandedSql);
+        Collections.addAll(params, args);
+        return this;
+    }
+
+    public List<Long> selectLongs() {
+        try (PreparedStatement ps = buildPs();
+             ResultSet rs = ps.executeQuery()) {
+            List<Long> result = new ArrayList<>();
+            while (rs.next()) {
+                result.add(rs.getLong(1));
+            }
+            return result;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
