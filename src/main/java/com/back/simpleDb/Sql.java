@@ -24,7 +24,7 @@ public class Sql {
         if (!query.isEmpty()) query.append(" ");
         query.append(sql);
         Collections.addAll(params, args);
-        return this; // 체이닝 핵심!
+        return this;
     }
 
     private PreparedStatement buildPs() throws SQLException {
@@ -162,11 +162,8 @@ public class Sql {
             rs.next();
             Object val = rs.getObject(1);
 
-            // BIT(1) 컬럼 → byte[]로 옴
             if (val instanceof byte[] bytes) return bytes[0] != 0;
-            // 1=1, 1=0 표현식 → Boolean으로 옴
             if (val instanceof Boolean b) return b;
-            // 혹시 숫자로 오는 경우
             if (val instanceof Number n) return n.intValue() != 0;
 
             return false;
@@ -180,7 +177,8 @@ public class Sql {
                 .mapToObj(i -> "?")
                 .collect(Collectors.joining(", "));
 
-        String expandedSql = sql.replace("?", placeholders);
+        int idx = sql.indexOf('?');
+        String expandedSql = sql.substring(0, idx) + placeholders + sql.substring(idx + 1);
 
         if (!query.isEmpty()) query.append(" ");
         query.append(expandedSql);
@@ -204,13 +202,13 @@ public class Sql {
             .registerModule(new JavaTimeModule());
 
     public <T> T selectRow(Class<T> clazz) {
-        Map<String, Object> row = selectRow(); // 이미 구현한 메서드 재사용
+        Map<String, Object> row = selectRow();
         if (row == null) return null;
         return mapper.convertValue(row, clazz);
     }
 
     public <T> List<T> selectRows(Class<T> clazz) {
-        return selectRows().stream() // 이미 구현한 메서드 재사용
+        return selectRows().stream()
                 .map(row -> mapper.convertValue(row, clazz))
                 .collect(Collectors.toList());
     }

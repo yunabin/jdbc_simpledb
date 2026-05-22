@@ -14,6 +14,5 @@ public class Article {
 
     @JsonProperty("isBlind")
     private boolean isBlind;
-    // Jackson이 쓸 기본 생성자
     public Article() {}
 }
